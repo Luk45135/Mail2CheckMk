@@ -1,9 +1,11 @@
 from configparser import ConfigParser, SectionProxy
 from imaplib import IMAP4
 from email import message_from_bytes
+from email.message import Message
 from email.header import decode_header
 from dataclasses import dataclass
 from time import time
+from bs4 import BeautifulSoup
 
 
 def read_config() -> SectionProxy:
@@ -27,7 +29,7 @@ def connect_to_imap_server(mail_config: SectionProxy) -> IMAP4:
 
     return imap_server
 
-def get_message_numbers_from_inbox(imap_server: IMAP4, mail_config: SectionProxy) -> list[int]:
+def get_message_numbers_from_inbox(imap_server: IMAP4, mail_config: SectionProxy) -> list[str]:
     """This gets all emails/message id's/numbers from the passed IMAP server
     from the configured Inbox mailbox and returns them in a list"""
 
@@ -47,14 +49,60 @@ class Email:
     subject: str
     body: str
 
-def get_messages_from_message_nums(message_number_list: list[int], imap_server: IMAP4) -> list[Email]:
+
+def decode_any_content_type(message: Message) -> str | None:
+    """This decodes any message or part of any content type and returns the message body
+    if possible"""
+
+    content_type = message.get_content_type()
+    payload = message.get_payload(decode=True)
+    if not payload:
+        return None
+
+    charset = message.get_charset() or "utf-8"
+    
+    try:
+        match content_type:
+            case "text/plain":
+                return payload.decode(charset)
+            case "text/html":
+                print("IM IN HTML")
+                return BeautifulSoup(payload, "html.parser").get_text(separator="\n", strip=True)
+            case _:
+                return None
+    except Exception:
+        return None
+
+
+def parse_message_body(message: Message) -> str:
+    """This parses the message body and sends it to decode_any_content_type and returns the body"""
+
+    body: str = ""
+    if message.is_multipart():
+        for part in message.walk():
+            content_disposition: str = str(part.get_content_disposition())
+            if "attachment" in content_disposition:
+                continue
+            
+            text = decode_any_content_type(part)
+            if text:
+                body += text + "\n"
+    else:
+        text = decode_any_content_type(message)
+        if text:
+            body = text
+    
+    return body.strip() if body.strip() else "(no readable content)"
+
+
+def get_messages_from_message_nums(message_number_list: list[str], imap_server: IMAP4) -> list[Email]:
     """This gets all messages from the message numbers from the server, parses them
     and returns them in a list"""
 
     emails: list[Email] = []
 
     for message_num in message_number_list:
-        print(message_num)
+
         status, data = imap_server.fetch(message_num, "(RFC822)")
     
         raw_email: bytes = data[0][1]
@@ -68,10 +116,10 @@ def get_messages_from_message_nums(message_number_list: list[int], imap_server: 
     
         from_field = msg.get("From")
     
-    
-        payload = msg.get_payload(decode=True)
-        charset = msg.get_content_charset() or "utf-8"
-        body = payload.decode(charset)
+        body = parse_message_body(msg) 
+        # payload = msg.get_payload(decode=True)
+        # charset = msg.get_content_charset() or "utf-8"
+        # body = payload.decode(charset)
     
         email = Email(
                 from_field = str(from_field),
@@ -86,7 +134,14 @@ def save_emails_as_plaintext(emails: list[Email]) -> None:
     """This saves all emails passed in as a plaintext file"""
 
     for email in emails:
-        ...  
+        unix_time_string = str(time()).replace(".", "-")
+        with open(f"plaintext-emails/{email.subject}_{unix_time_string}.txt", "w") as file:
+            file.write(f"{email.from_field}\n")
+            file.write("\n")
+            file.write(f"{email.subject}\n")
+            file.write("\n")
+            file.write(email.body)
+
 
     
 
@@ -100,7 +155,7 @@ def logout_from_imap_server(imap_server: IMAP4) -> None:
 def main():
     mail_config: SectionProxy = read_config()
     imap_server: IMAP4 = connect_to_imap_server(mail_config)
-    message_number_list: list[int] = get_message_numbers_from_inbox(imap_server, mail_config)
+    message_number_list: list[str] = get_message_numbers_from_inbox(imap_server, mail_config)
     emails: list[Email] = get_messages_from_message_nums(message_number_list, imap_server)
     save_emails_as_plaintext(emails)
 
