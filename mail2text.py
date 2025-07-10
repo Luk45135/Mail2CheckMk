@@ -66,7 +66,6 @@ def decode_any_content_type(message: Message) -> str | None:
             case "text/plain":
                 return payload.decode(charset)
             case "text/html":
-                print("IM IN HTML")
                 return BeautifulSoup(payload, "html.parser").get_text(separator="\n", strip=True)
             case _:
                 return None
@@ -135,7 +134,8 @@ def save_emails_as_plaintext(emails: list[Email]) -> None:
 
     for email in emails:
         unix_time_string = str(time()).replace(".", "-")
-        with open(f"plaintext-emails/{email.subject}_{unix_time_string}.txt", "w") as file:
+        filename_prefix = email.subject.replace(" ", "_")
+        with open(f"plaintext-emails/{filename_prefix}_{unix_time_string}.txt", "w") as file:
             file.write(f"{email.from_field}\n")
             file.write("\n")
             file.write(f"{email.subject}\n")
