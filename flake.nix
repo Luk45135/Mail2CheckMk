@@ -13,6 +13,7 @@
     devShells."x86_64-linux".default = pkgs.mkShell {
       packages = with pkgs; [
         python311
+        python311Packages.beautifulsoup4
       ];
       shellHook = "
         echo This is a shell with $(python -V)
