@@ -4,6 +4,7 @@ from email import message_from_bytes
 from email.message import Message
 from email.header import decode_header
 from dataclasses import dataclass
+from re import sub
 from time import time
 from bs4 import BeautifulSoup
 
@@ -134,7 +135,7 @@ def save_emails_as_plaintext(emails: list[Email]) -> None:
 
     for email in emails:
         unix_time_string = str(time()).replace(".", "-")
-        filename_prefix = email.subject.replace(" ", "_")
+        filename_prefix = sub(r"[\/\0\n\r\s]", "_", email.subject)
         with open(f"plaintext-emails/{filename_prefix}_{unix_time_string}.txt", "w") as file:
             file.write(f"{email.from_field}\n")
             file.write("\n")
