@@ -130,9 +130,11 @@ def get_messages_from_message_nums(message_number_list: list[str], imap_server: 
 
     return emails
 
-def save_emails_as_plaintext(emails: list[Email]) -> None:
-    """This saves all emails passed in as a plaintext file"""
+def save_emails_as_plaintext(emails: list[Email]) -> int:
+    """This saves all emails passed in as a plaintext file
+    and returns the number of emails saved this way"""
 
+    email_count: int = 0
     for email in emails:
         unix_time_string = str(time()).replace(".", "-")
         filename_prefix = sub(r"[\/\0\n\r\s]", "_", email.subject)
@@ -142,6 +144,10 @@ def save_emails_as_plaintext(emails: list[Email]) -> None:
             file.write(f"{email.subject}\n")
             file.write("\n")
             file.write(email.body)
+
+        email_count += 1
+
+    return email_count
 
 
     
@@ -153,14 +159,15 @@ def logout_from_imap_server(imap_server: IMAP4) -> None:
     imap_server.close()
     imap_server.logout()
 
-def main():
+def main() -> int:
     mail_config: SectionProxy = read_config()
     imap_server: IMAP4 = connect_to_imap_server(mail_config)
     message_number_list: list[str] = get_message_numbers_from_inbox(imap_server, mail_config)
     emails: list[Email] = get_messages_from_message_nums(message_number_list, imap_server)
-    save_emails_as_plaintext(emails)
+    mails_saved: int = save_emails_as_plaintext(emails)
 
     logout_from_imap_server(imap_server)
+    return mails_saved
 
 if __name__ == "__main__":
     main()
