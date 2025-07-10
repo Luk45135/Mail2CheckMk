@@ -150,6 +150,16 @@ def save_emails_as_plaintext(emails: list[Email]) -> int:
     return email_count
 
 
+def move_emails(imap_server: IMAP4, message_nums: list[str], mail_config: SectionProxy) -> None:
+    """This copies the messages to the configured target mailbox and then deletes
+    them from the Inbox"""
+    for msg_num in message_nums:
+
+        status, data = imap_server.copy(msg_num, mail_config.get("post_process_mailbox"))
+
+        status, data = imap_server.store(msg_num, "+FLAGS", r"(\Deleted)")
+
+    imap_server.expunge()
     
 
 def logout_from_imap_server(imap_server: IMAP4) -> None:
@@ -165,6 +175,7 @@ def main() -> int:
     message_number_list: list[str] = get_message_numbers_from_inbox(imap_server, mail_config)
     emails: list[Email] = get_messages_from_message_nums(message_number_list, imap_server)
     mails_saved: int = save_emails_as_plaintext(emails)
+    move_emails(imap_server, message_number_list, mail_config)
 
     logout_from_imap_server(imap_server)
     return mails_saved
