@@ -151,13 +151,15 @@ def save_emails_as_plaintext(emails: list[Email]) -> int:
 
 
 def move_emails(imap_server: IMAP4, message_nums: list[str], mail_config: SectionProxy) -> None:
-    """This copies the messages to the configured target mailbox and then deletes
-    them from the Inbox"""
+    """This copies the messages to the configured target mailbox if configured to do so
+    and then deletes them from the Inbox"""
+    archive_mails: bool = mail_config.getboolean("archive_processed_mails")
+
     for msg_num in message_nums:
+        if archive_mails:
+            imap_server.copy(msg_num, mail_config.get("archive_mailbox"))
 
-        status, data = imap_server.copy(msg_num, mail_config.get("post_process_mailbox"))
-
-        status, data = imap_server.store(msg_num, "+FLAGS", r"(\Deleted)")
+        imap_server.store(msg_num, "+FLAGS", r"(\Deleted)")
 
     imap_server.expunge()
     
