@@ -6,11 +6,12 @@ import re
 
 
 def get_plaintext_emails() -> list[Path]:
-    """This returns a list of all Path objects of the text files in the plaintext-emails directory"""
+    """This returns a sorted list of all Path objects of the text files in the plaintext-emails directory"""
 
     plaintext_email_directory = Path("plaintext-emails")
-    plaintext_email_iterator = plaintext_email_directory.glob("*.txt")
-    return list(plaintext_email_iterator)
+    plaintext_email_list = list(plaintext_email_directory.glob("*.txt"))
+    # This sorts the list with the unix timestamp from the filename
+    return sorted(plaintext_email_list, key=lambda p: int(p.stem.split("_")[-1]))
 
 
 def get_service_configs() -> list[SectionProxy]:
