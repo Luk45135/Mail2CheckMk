@@ -136,7 +136,7 @@ def save_emails_as_plaintext(emails: list[Email]) -> int:
 
     emails_saved: int = 0
     for email in emails:
-        unix_time_string = str(time()).replace(".", "")
+        unix_time_string = str(time()).replace(".", ",")
         filename_prefix = sub(r"[\/\0\n\r\s]", "_", email.subject)
         with open(f"plaintext-emails/{filename_prefix}_{unix_time_string}.txt", "w") as file:
             file.write(f"{email.from_field}\n")
