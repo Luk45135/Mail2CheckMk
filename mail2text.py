@@ -134,7 +134,7 @@ def save_emails_as_plaintext(emails: list[Email]) -> int:
     """This saves all emails passed in as a plaintext file
     and returns the number of emails saved this way"""
 
-    email_count: int = 0
+    emails_saved: int = 0
     for email in emails:
         unix_time_string = str(time()).replace(".", "")
         filename_prefix = sub(r"[\/\0\n\r\s]", "_", email.subject)
@@ -145,9 +145,9 @@ def save_emails_as_plaintext(emails: list[Email]) -> int:
             file.write("\n")
             file.write(email.body)
 
-        email_count += 1
+        emails_saved += 1
 
-    return email_count
+    return emails_saved
 
 
 def move_emails(imap_server: IMAP4, message_nums: list[str], mail_config: SectionProxy) -> None:
