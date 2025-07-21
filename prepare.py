@@ -2,7 +2,7 @@ from pathlib import Path
 
 def main() -> None:
 
-    Path("plaintext-emails").mkdir(parents=True, exist_ok=True)
+    Path("plaintext-emails/without-service").mkdir(parents=True, exist_ok=True)
     Path("service-files").mkdir(parents=True, exist_ok=True)
 
 
