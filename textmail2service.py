@@ -55,7 +55,8 @@ def get_email_from_path(email_path: Path) -> Email:
 
 @dataclass
 class Service:
-    processed: bool
+    delete: bool
+    send: bool
     status: int
     name: str
     values: dict
@@ -129,9 +130,10 @@ def create_service_object(service_config: SectionProxy, email_object: Email, sub
                        .replace("REGEX_GROUP", relevant_match.group(1))
                        )
 
-    processed: bool = False
+    delete: bool = False
+    send: bool = True
             
-    return Service(processed, status, name, values, details)
+    return Service(delete, send, status, name, values, details)
 
 
 
@@ -177,6 +179,7 @@ def checkmk_services(service_files: list[Service], emails_processed: int, servic
     """This adds checkmk related services to the service list"""
 
     service_files.append(Service(True,
+                                 True,
                                  0,
                                  "[Mail2CheckMK] Stats",
                                  {"emails_processed":emails_processed, "service_files_created":service_files_created},
@@ -186,6 +189,7 @@ def checkmk_services(service_files: list[Service], emails_processed: int, servic
     
     if email_without_service_count > 0:
         service_files.append(Service(True,
+                                     True,
                                      1,
                                      "[Mail2CheckMK] Emails without service",
                                      {"email_without_service_count":email_without_service_count},
@@ -211,7 +215,8 @@ def save_service_files(service_objects: list[Service]) -> None:
             
 
         with open(f"service-files/{filename}.txt", "w") as file:
-            file.write(f"{service_object.processed}\n")
+            file.write(f"Delete Service File: {service_object.delete}\n")
+            file.write(f"Send to CheckMK: {service_object.send}\n")
             file.write(f'{str(service_object.status)} "{service_object.name}" {formatted_dict} {service_object.status_details}')
 
 

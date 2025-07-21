@@ -18,17 +18,14 @@ def get_service_files() -> list[Path]:
     return [t[0] for t in sorted_service_files]
 
 
-# def get_object_from_path(service_files: list[Path]) -> list[Service]:
-#     ...
-
-def mark_as_processed(service_file_path: Path):
-    """This marks a service file as processed/for deletion"""
+def mark_for_deletion(service_file_path: Path):
+    """This marks a service file for deletion"""
     
     lines: list[str] = []
     with open(service_file_path, "r") as f:
         lines = f.readlines()
 
-    lines[0] = "True\n"
+    lines[0] = lines[0].replace("False", "True")
     with open(service_file_path, "w") as f:
         f.writelines(lines)
 
@@ -36,7 +33,7 @@ def mark_as_processed(service_file_path: Path):
 
 def filter_duplicate_services(service_files: list[Path]) -> list[Path]:
     """This makes sure that only 1 service with the same name is returned in the list
-    and marks any duplicate as processed/for deletion"""
+    and marks any duplicate for deletion"""
 
     list_of_service_names: list[str] = []
     filtered_service_files: list[Path] = []
@@ -51,49 +48,64 @@ def filter_duplicate_services(service_files: list[Path]) -> list[Path]:
             list_of_service_names.append(service_name)
             filtered_service_files.append(service)
         else:
-            mark_as_processed(service)
+            mark_for_deletion(service)
             
 
     return filtered_service_files
 
 
 def send_to_checkmk(service_files: list[Path]) -> None:
-    """This prints the second line to standard out"""
+    """This prints the checkmk output line to standard out if send (second line) is set to True"""
 
     for file in service_files:
-        checkmk_output: list[str] = file.read_text().splitlines()
-        print(checkmk_output[1])
+        lines: list[str] = file.read_text().splitlines()
+        if "True" in lines[1]:
+            checkmk_output: str = lines[2]
+            print(checkmk_output)
 
-def mark_services_with_ok_status_as_processed(filtered_service_files: list[Path]) -> None:
-    """This sends any service file that has a 0 status code to mark_as_processed()"""
+
+def mark_services_with_ok_status_for_deletion(filtered_service_files: list[Path]) -> None:
+    """This sends any service file that has a 0 status code to mark_for_deletion()"""
     
     for file in filtered_service_files:
         lines: list[str] = []
         with open(file, "r") as f:
             lines = f.readlines()
         # The status code of a service file is saved in the first position of the second line
-        if lines[1][0] == "0":
-            mark_as_processed(file)
+        if lines[2][0] == "0":
+            mark_for_deletion(file)
 
 
 def delete_service_files(service_files: list[Path]) -> None:
-    """This deletes every file that has been marked as processed/for deletion"""
+    """This deletes every file that has been marked for deletion"""
 
     for file in service_files:
         lines: list[str] = []
         with open(file, "r") as f:
-            lines = f.readlines()
-        if lines[0] == "True\n":
+            lines: list[str] = f.readlines()
+        if "True" in lines[0]:
             os.remove(file.absolute().as_posix())
 
+
+def dont_send_anymore(service_files: list[Path]) -> None:
+
+    for file in service_files:
+        if file.exists():
+            lines: list[str] = []
+            with open(file, "r") as f:
+                lines = f.readlines()
+            lines[1] = lines[1].replace("True", "False")
+            with open(file, "w") as f:
+                f.writelines(lines)
 
 
 def main() -> None:
     service_files: list[Path] = get_service_files()
     filtered_service_files: list[Path] = filter_duplicate_services(service_files)
     send_to_checkmk(filtered_service_files)
-    mark_services_with_ok_status_as_processed(filtered_service_files)
+    mark_services_with_ok_status_for_deletion(filtered_service_files)
     delete_service_files(service_files)
+    dont_send_anymore(service_files)
 
 
 
