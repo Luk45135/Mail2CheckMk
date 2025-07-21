@@ -73,16 +73,9 @@ def create_service_object(service_config: SectionProxy, email_object: Email, sub
     warn_regex = service_config.get("warn_regex")
     crit_regex = service_config.get("crit_regex")
 
-    # ok_match: Match | None = None
-    # warn_match: Match | None = None
-    # crit_match: Match | None = None
+    value_name = service_config.get("value_name")
+    value_regex = service_config.get("value_regex")
 
-    # if ok_regex is not None:
-    #     ok_match = search(ok_regex, email_object.body)
-    # if warn_regex is not None:
-    #     warn_match = search(warn_regex, email_object.body)
-    # if crit_regex is not None:
-    #     crit_match = search(crit_regex, email_object.body)
 
     ok_match = search(ok_regex, email_object.body) if ok_regex else None
     warn_match = search(warn_regex, email_object.body) if warn_regex else None
@@ -109,6 +102,9 @@ def create_service_object(service_config: SectionProxy, email_object: Email, sub
     name: str = service_config.get("name").replace("EMAIL_SUBJECT_REGEX", subject_match.group(1))
 
     values: dict = {}
+    if value_name is not None and value_regex is not None:
+        values[value_name] = value_regex
+
 
     # print(warn_match)
 
