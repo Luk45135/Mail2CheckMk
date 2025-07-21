@@ -228,7 +228,7 @@ def move_mails_without_service(plaintext_email_paths: list[Path]) -> None:
 
     for file in plaintext_email_paths:
         if file.exists():
-            file.rename(file.parent / "unprocessed-emails" / file.name)
+            file.rename(file.parent / "without-service" / file.name)
 
 
 def main(emails_saved: int = 0) -> None:
