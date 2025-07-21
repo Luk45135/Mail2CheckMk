@@ -7,8 +7,8 @@ import service2checkmk
 
 def main() -> None:
     prepare.main()
-    mails_processed: int = mail2text.main()
-    textmail2service.main()
+    emails_saved: int = mail2text.main()
+    textmail2service.main(emails_saved)
     service2checkmk.main()
 
 
