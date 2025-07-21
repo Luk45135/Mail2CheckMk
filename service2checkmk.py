@@ -88,6 +88,8 @@ def delete_service_files(service_files: list[Path]) -> None:
 
 
 def dont_send_anymore(service_files: list[Path]) -> None:
+    """This marks any remaining files to not send to CheckMK anymore
+    to prevent the same error flooding checkmk"""
 
     for file in service_files:
         if file.exists():
