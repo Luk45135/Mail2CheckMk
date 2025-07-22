@@ -205,7 +205,7 @@ def save_service_files(service_objects: list[Service]) -> None:
         formatted_dict: str = ""
         for key, value in service_object.values.items():
             if formatted_dict == "":
-                formatted_dict += f"{key}={value}"
+                formatted_dict += f" {key}={value}"
             else:
                 formatted_dict += f"|{key}={value}"
             
@@ -213,7 +213,7 @@ def save_service_files(service_objects: list[Service]) -> None:
         with open(f"service-files/{filename}.txt", "w") as file:
             file.write(f"Delete Service File: {service_object.delete}\n")
             file.write(f"Send to CheckMK: {service_object.send}\n")
-            file.write(f'{str(service_object.status)} "{service_object.name}" {formatted_dict} {service_object.status_details}')
+            file.write(f'{str(service_object.status)} "{service_object.name}"{formatted_dict} {service_object.status_details}')
 
 
 def delete_files(files_to_be_deleted: list[Path]) -> None:
