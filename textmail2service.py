@@ -106,8 +106,6 @@ def create_service_object(service_config: SectionProxy, email_object: Email, sub
         values[value_name] = value_regex
 
 
-    # print(warn_match)
-
     details: str = ""
     match status:
         case 0:
@@ -146,13 +144,9 @@ def process_emails(plaintext_emails_paths: list[Path], service_config_list: list
         email_object = get_email_from_path(email_path)
         email_processed = False
 
-        # print(email_object)
         for service_config in service_config_list:
             email_subject_regex = service_config.get("email_subject_regex")
-            # print(email_subject_regex)
-            # print(email_object.subject)
             re_match: Match = search(email_subject_regex, email_object.subject)
-            # print(re_match)
             if re_match is not None:
                 # We saved the timestamp in the filename with a "," as the seperator
                 timestamp: float = float(email_path.stem.split("_")[-1].replace(",", "."))
@@ -160,7 +154,6 @@ def process_emails(plaintext_emails_paths: list[Path], service_config_list: list
                 if service_object is not None:
                     service_objects.append(service_object)
                     service_files_created += 1
-                    # print(service_object)
                     email_processed = True
         if email_processed:
             files_to_be_deleted.append(email_path)
