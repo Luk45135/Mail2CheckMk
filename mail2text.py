@@ -106,7 +106,6 @@ def get_messages_from_message_nums(message_number_list: list[str], imap_server: 
         status, data = imap_server.fetch(message_num, "(RFC822)")
     
         raw_email: bytes = data[0][1]
-        # print(raw_email)
     
         msg = message_from_bytes(raw_email)
     
@@ -117,9 +116,6 @@ def get_messages_from_message_nums(message_number_list: list[str], imap_server: 
         from_field = msg.get("From")
     
         body = parse_message_body(msg) 
-        # payload = msg.get_payload(decode=True)
-        # charset = msg.get_content_charset() or "utf-8"
-        # body = payload.decode(charset)
     
         email = Email(
                 from_field = str(from_field),
