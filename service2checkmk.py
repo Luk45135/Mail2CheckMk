@@ -35,12 +35,9 @@ def filter_duplicate_services(service_files: list[Path]) -> list[Path]:
     """This makes sure that only 1 service with the same name is returned in the list
     and marks any duplicate for deletion"""
 
-    # list_of_service_names: list[str] = []
     filtered_service_files: list[Path] = []
 
     for service in service_files:
-        # service_object: Service = get_object_from_path(service)
-        # service_name: str = service_object.name
         filename_stem: str = service.stem
         service_name: str = sub(r"_\d{10,},\d*", "", filename_stem)
 
@@ -52,34 +49,22 @@ def filter_duplicate_services(service_files: list[Path]) -> list[Path]:
         for known_service in filtered_service_files:
             lines: list[str] = []
             known_service_name = sub(r"_\d{10,},\d*", "", known_service.stem)
-            # print(f"Checking {service_name} on {known_service_name}")
 
             if service_name in known_service_name:
-                # print(f"MATCH!")
+
                 # seems inefficient but dont know a fix for it
                 with open(service, "r") as f:
                     lines = f.readlines()
                 # check if new service has ok status
                 if lines[2][0] == "0":
                     # delete old one
-                    # print(f"Delete this service: {known_service}")
-                    # print(f"DELETING {known_service_name}")
                     mark_for_deletion(known_service)
-                    # This
                     filtered_service_files.append(service)
+
                 break
         else:
             filtered_service_files.append(service)
 
-        # if service_name not in list_of_service_names:
-        #     list_of_service_names.append(service_name)
-        #     filtered_service_files.append(service)
-        # else:
-        #     # lines: list[str] = []
-        #     # with open(service, "r") as f:
-        #     #     lines = f.readlines()
-        #     # if lines[2][0] != "0":
-        #         mark_for_deletion(service)
 
     return filtered_service_files
 
