@@ -99,9 +99,9 @@ def create_service_object(service_config: SectionProxy, email_object: Email, sub
     crit_cycle: int = service_config.getint("crit_cycle")
     time_difference: float = time() - timestamp
 
-    if crit_cycle != 0 and time_difference > crit_cycle:
+    if crit_cycle != 0 and time_difference >= crit_cycle:
         status = 2
-    elif warn_cycle != 0 and time_difference > warn_cycle:
+    elif warn_cycle != 0 and time_difference >= warn_cycle:
         status = 1
 
 
