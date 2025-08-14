@@ -95,10 +95,15 @@ def create_service_object(service_config: SectionProxy, email_object: Email, sub
     else:
         status = 3
 
+    warn_cycle: int = service_config.getint("warn_cycle")
     crit_cycle: int = service_config.getint("crit_cycle")
     time_difference: float = time() - timestamp
-    if crit_cycle < time_difference:
+
+    if crit_cycle != 0 and time_difference > crit_cycle:
         status = 2
+    elif warn_cycle != 0 and time_difference > warn_cycle:
+        status = 1
+
 
     name: str = service_config.get("name").replace("EMAIL_SUBJECT_REGEX", subject_match.group(1))
 
