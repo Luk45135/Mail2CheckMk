@@ -82,17 +82,18 @@ def create_service_object(service_config: SectionProxy, email_object: Email, sub
     crit_match = search(crit_regex, email_object.body) if crit_regex else None
     relevant_match: Match = search("", email_object.body)
 
-    if ok_match is not None:
-        status = 0
-        relevant_match = ok_match
+
+    if crit_match is not None:
+        status = 2
+        relevant_match = crit_match
     elif warn_match is not None:
         status = 1
         relevant_match = warn_match
-    elif crit_match is not None:
-        status = 2
-        relevant_match = crit_match
+    elif ok_match is not None:
+        status = 0
+        relevant_match = ok_match
     else:
-        return None
+        status = 3
 
     crit_cycle: int = service_config.getint("crit_cycle")
     time_difference: float = time() - timestamp
