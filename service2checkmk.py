@@ -32,39 +32,24 @@ def mark_for_deletion(service_file_path: Path):
 
 
 def filter_duplicate_services(service_files: list[Path]) -> list[Path]:
-    """This makes sure that only 1 service with the same name is returned in the list
-    and marks any duplicate for deletion"""
+    """This makes sure that only the latest service file exists"""
 
     filtered_service_files: list[Path] = []
+    seen_service_names: list[str] = []
+    
 
-    for service in service_files:
-        filename_stem: str = service.stem
-        service_name: str = sub(r"_\d{10,},\d*", "", filename_stem)
-
-
-        # This should be ok. The only case where we mistakenly delete the older of multiple identical services
-        # is when we get two identical services with status OK in between two runs, because the only services
-        # that remain between runs have a status of *not* OK, and in that case we want to delete the older one
-        # when the new one has a status of OK
-        for known_service in filtered_service_files:
-            lines: list[str] = []
-            known_service_name = sub(r"_\d{10,},\d*", "", known_service.stem)
-
-            if service_name in known_service_name:
-
-                # seems inefficient but dont know a fix for it
-                with open(service, "r") as f:
-                    lines = f.readlines()
-                # check if new service has ok status
-                if lines[2][0] == "0":
-                    # delete old one
-                    mark_for_deletion(known_service)
-                    filtered_service_files.append(service)
-
-                break
+    for service in reversed(service_files):
+        service_name = sub(r"_\d{10,},\d*", "", service.stem)
+        
+        if service_name in seen_service_names:
+            # os.remove(service)
+            service.unlink()
         else:
             filtered_service_files.append(service)
 
+        seen_service_names.append(service_name)
+
+    filtered_service_files.reverse()
 
     return filtered_service_files
 
