@@ -93,7 +93,7 @@ def create_service_object(service_config: SectionProxy, email_object: Email, sub
         status = 0
         relevant_match = ok_match
     else:
-        status = 3
+        return None
 
     warn_cycle: int = service_config.getint("warn_cycle")
     crit_cycle: int = service_config.getint("crit_cycle")
