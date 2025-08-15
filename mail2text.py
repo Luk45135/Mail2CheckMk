@@ -1,5 +1,5 @@
 from configparser import ConfigParser, SectionProxy
-from imaplib import IMAP4
+from imaplib import IMAP4, IMAP4_SSL
 from email import message_from_bytes
 from email.message import Message
 from email.header import decode_header
@@ -7,6 +7,11 @@ from dataclasses import dataclass
 from re import sub
 from time import time
 from bs4 import BeautifulSoup
+from typing import Union
+
+# SSL and Non-SSL use different classes
+# So to preserver type annotation a Union is used
+IMAPServer = Union[IMAP4, IMAP4_SSL]
 
 
 def read_config() -> SectionProxy:
@@ -20,17 +25,36 @@ def read_config() -> SectionProxy:
     return mail_config
 
 
-def connect_to_imap_server(mail_config: SectionProxy) -> IMAP4:
-    """This connects to the IMAP server from the passed config details,
-    logs in with the provided details and then return the IMAP4 server object"""
+def connect_to_imap_server(mail_config: SectionProxy) -> IMAPServer:
+    """This connects to the IMAP server using the configured connection type"""
 
-    imap_server = IMAP4(host=mail_config.get("host", "localhost"), port=mail_config.getint("port", 143))
+    imap_host = mail_config.get("host", "localhost")
+    imap_port = mail_config.getint("port", 143)
+    use_ssl = mail_config.getboolean("use_ssl", False)
+    use_starttls = mail_config.getboolean("use_starttls", False)
 
-    imap_server.login(user=mail_config.get("user", "testuser"), password=mail_config.get("password", "testpass"))
+    if use_ssl:
+        imap_server = IMAP4_SSL(host=imap_host, port=imap_port)
+    else:
+        imap_server = IMAP4(host=imap_host, port=imap_port)
+        if use_starttls:
+            imap_server.starttls()
 
     return imap_server
 
-def get_message_numbers_from_inbox(imap_server: IMAP4, mail_config: SectionProxy) -> list[str]:
+
+
+def login_to_imap(imap_server: IMAPServer, mail_config: SectionProxy) -> IMAPServer:
+    """This logs in to the IMAP Server with the configured details"""
+    
+    imap_user = mail_config.get("user", "testuser")
+    imap_password = mail_config.get("password", "testpass")
+    imap_server.login(user=imap_user, password=imap_password)
+
+    return imap_server
+
+
+def get_message_numbers_from_inbox(imap_server: IMAPServer, mail_config: SectionProxy) -> list[str]:
     """This gets all emails/message id's/numbers from the passed IMAP server
     from the configured Inbox mailbox and returns them in a list"""
 
@@ -38,7 +62,7 @@ def get_message_numbers_from_inbox(imap_server: IMAP4, mail_config: SectionProxy
     
     status, message_numbers = imap_server.search(None, "ALL")
 
-    message_number_list = message_numbers[0].split()
+    message_number_list = message_numbers[0].split() if message_numbers else []
 
     return message_number_list
 
@@ -95,7 +119,7 @@ def parse_message_body(message: Message) -> str:
     return body.strip() if body.strip() else "(no readable content)"
 
 
-def get_messages_from_message_nums(message_number_list: list[str], imap_server: IMAP4) -> list[Email]:
+def get_messages_from_message_nums(message_number_list: list[str], imap_server: IMAPServer) -> list[Email]:
     """This gets all messages from the message numbers from the server, parses them
     and returns them in a list"""
 
@@ -146,7 +170,7 @@ def save_emails_as_plaintext(emails: list[Email]) -> int:
     return emails_saved
 
 
-def move_emails(imap_server: IMAP4, message_nums: list[str], mail_config: SectionProxy) -> None:
+def move_emails(imap_server: IMAPServer, message_nums: list[str], mail_config: SectionProxy) -> None:
     """This copies the messages to the configured target mailbox if configured to do so
     and then deletes them from the Inbox"""
     archive_mails: bool = mail_config.getboolean("archive_processed_mails")
@@ -160,7 +184,7 @@ def move_emails(imap_server: IMAP4, message_nums: list[str], mail_config: Sectio
     imap_server.expunge()
     
 
-def logout_from_imap_server(imap_server: IMAP4) -> None:
+def logout_from_imap_server(imap_server: IMAPServer) -> None:
     """This closes any mailbox, logs out
     and closes the connection to the passed IMAP server"""
 
@@ -169,7 +193,8 @@ def logout_from_imap_server(imap_server: IMAP4) -> None:
 
 def main() -> int:
     mail_config: SectionProxy = read_config()
-    imap_server: IMAP4 = connect_to_imap_server(mail_config)
+    imap_server: IMAPServer = connect_to_imap_server(mail_config)
+    imap_server: IMAPServer = login_to_imap(imap_server, mail_config)
     message_number_list: list[str] = get_message_numbers_from_inbox(imap_server, mail_config)
     emails: list[Email] = get_messages_from_message_nums(message_number_list, imap_server)
     mails_saved: int = save_emails_as_plaintext(emails)
