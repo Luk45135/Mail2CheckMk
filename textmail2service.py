@@ -13,7 +13,7 @@ def get_plaintext_emails() -> list[Path]:
     """This returns a sorted list of all Path objects of the text files in the plaintext-emails directory"""
 
     plaintext_email_directory = Path("plaintext-emails")
-    plaintext_email_list = list(plaintext_email_directory.glob("*.txt"))
+    plaintext_email_list = list(plaintext_email_directory.rglob("*.txt"))
     # This sorts the list with the unix timestamp from the filename
     return sorted(plaintext_email_list, key=lambda p: float(p.stem.split("_")[-1].replace(",", ".")))
 
@@ -227,9 +227,10 @@ def move_mails_without_service(plaintext_email_paths: list[Path]) -> None:
     """This moves all remaining plaintext-emails into the without-service subdirectory,
     but because the only remaining one's don't have services it's called like this."""
 
+    without_service_path: Path = Path("plaintext-emails") / "without-servive"
     for file in plaintext_email_paths:
-        if file.exists():
-            file.rename(file.parent / "without-service" / file.name)
+        if file.exists() and "without" not in file.parent.name:
+            file.rename(without_service_path / file.name)
 
 
 def main(emails_saved: int = 0) -> None:
