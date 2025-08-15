@@ -93,6 +93,7 @@ def create_service_object(service_config: SectionProxy, email_object: Email, sub
         status = 0
         relevant_match = ok_match
     else:
+        # If no match is found this service doesn't apply so return None
         return None
 
     warn_cycle: int = service_config.getint("warn_cycle")
