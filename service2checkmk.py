@@ -86,6 +86,13 @@ def delete_service_files(service_files: list[Path]) -> None:
         if "True" in lines[0]:
             os.remove(file.absolute().as_posix())
 
+def delete_mail2checkmk_services(service_files: list[Path]) -> None:
+    "This deletes any service file that has Mail2CheckMK in it's name."
+
+    for service in service_files:
+        if "[Mail2CheckMK]" in service.stem:
+            service.unlink()
+
 
 def dont_send_anymore(service_files: list[Path]) -> None:
     """This marks any remaining files to not send to CheckMK anymore
@@ -108,6 +115,7 @@ def main() -> None:
     mark_services_with_ok_status_for_deletion(filtered_service_files)
     delete_service_files(service_files)
     dont_send_anymore(service_files)
+    delete_mail2checkmk_services(filtered_service_files)
 
 
 
