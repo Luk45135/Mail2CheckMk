@@ -1,0 +1,9 @@
+[project]
+name = "mail2checkmk"
+version = "0.1.0"
+description = "A python script that transforms emails to CheckMk local checks with RegEx"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.13.5",
+]
