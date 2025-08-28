@@ -12,6 +12,8 @@
   {
     devShells."x86_64-linux".default = pkgs.mkShell {
       packages = with pkgs; [
+        uv
+        ruff
         python311
         python311Packages.beautifulsoup4
       ];
