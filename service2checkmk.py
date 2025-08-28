@@ -112,10 +112,10 @@ def main() -> None:
     service_files: list[Path] = get_service_files()
     filtered_service_files: list[Path] = filter_duplicate_services(service_files)
     send_to_checkmk(filtered_service_files)
-    mark_services_with_ok_status_for_deletion(filtered_service_files)
-    delete_service_files(service_files)
-    dont_send_anymore(service_files)
+    # mark_services_with_ok_status_for_deletion(filtered_service_files)
+    # delete_service_files(filtered_service_files)
     delete_mail2checkmk_services(filtered_service_files)
+    # dont_send_anymore(service_files)
 
 
 
