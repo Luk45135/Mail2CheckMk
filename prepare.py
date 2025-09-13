@@ -1,3 +1,6 @@
+# This module makes sure that the needed directory structure
+# for the other modules exists
+
 from pathlib import Path
 
 def main() -> None:

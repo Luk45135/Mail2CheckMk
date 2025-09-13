@@ -1,3 +1,6 @@
+# This module prints the contents of the service files in ./service-files
+# to standard out to send them to Checkmk
+
 import os
 from pathlib import Path
 from re import sub

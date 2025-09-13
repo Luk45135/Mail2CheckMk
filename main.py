@@ -1,3 +1,6 @@
+# This is the entry point of the program which
+# executes every module in order
+
 import prepare
 import mail2text
 import textmail2service

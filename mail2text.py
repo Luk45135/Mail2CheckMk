@@ -1,3 +1,7 @@
+# This module downloads all Emails from the configured IMAP4 server,
+# saves them as plaintext-files in ./plaintext-emails,
+# and then either moves or deletes them on the IMAP server
+
 from configparser import ConfigParser, SectionProxy
 from imaplib import IMAP4, IMAP4_SSL
 from email import message_from_bytes

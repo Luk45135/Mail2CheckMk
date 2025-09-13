@@ -1,3 +1,7 @@
+# This module parses all the files in ./plaintext-emails with RegEx
+# like the service configuration file in ./config/services say
+# and then saves these services as plaintext-files in ./service-files
+
 import os
 from pathlib import Path
 from configparser import ConfigParser, SectionProxy
