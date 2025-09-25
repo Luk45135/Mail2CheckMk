@@ -4,6 +4,7 @@
 #     with the name that it has in the update mails (without spaces at the beginning or end)
 
 # Any Regex is defined without "" even if syntax highlighting looks weird
+# I recommend https://regex101.com for writing regular expressions
 
 # This defines the regex that looks at the email subject lines
 #   if it matches to anything but nothing a service file is created with details
