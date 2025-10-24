@@ -90,6 +90,8 @@ def decode_any_content_type(message: Message) -> str | None:
 
     charset = message.get_charset() or "utf-8"
     
+    # If the message body just uses plaintext we dan decode it, but
+    # if html is used we let Beatifulsoup handle decoding.
     try:
         match content_type:
             case "text/plain":
@@ -106,6 +108,8 @@ def parse_message_body(message: Message) -> str:
     """This parses the message body and sends it to decode_any_content_type and returns the body"""
 
     body: str = ""
+
+    # Handle the message body potentially being a multipart message
     if message.is_multipart():
         for part in message.walk():
             content_disposition: str = str(part.get_content_disposition())
@@ -120,12 +124,13 @@ def parse_message_body(message: Message) -> str:
         if text:
             body = text
     
+    # Return "(no readable content)" if the messagee body is empty
     return body.strip() if body.strip() else "(no readable content)"
 
 
 def get_messages_from_message_nums(message_number_list: list[str], imap_server: IMAPServer) -> list[Email]:
-    """This gets all messages from the message numbers from the server, parses them
-    and returns them in a list"""
+    """This downloads every email in the message number list and returns a properly formatted
+    list of parsed Email objects."""
 
     emails: list[Email] = []
 
@@ -161,6 +166,8 @@ def save_emails_as_plaintext(emails: list[Email]) -> int:
     emails_saved: int = 0
     for email in emails:
         unix_time_string = str(time()).replace(".", ",")
+
+        # Remove characters that cause problems in filenames
         filename_prefix = sub(r"[\/\0\n\r\s]", "_", email.subject)
         with open(f"plaintext-emails/{filename_prefix}_{unix_time_string}.txt", "w") as file:
             file.write(f"{email.from_field}\n")
@@ -175,8 +182,8 @@ def save_emails_as_plaintext(emails: list[Email]) -> int:
 
 
 def move_emails(imap_server: IMAPServer, message_nums: list[str], mail_config: SectionProxy) -> None:
-    """This copies the messages to the configured target mailbox if configured to do so
-    and then deletes them from the Inbox"""
+    """This moves the messages to the configured target mailbox"""
+
     archive_mails: bool = mail_config.getboolean("archive_processed_mails")
 
     for msg_num in message_nums:
