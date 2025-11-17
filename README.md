@@ -9,10 +9,15 @@ Why? - Do you have a stupid service that can't use SNMP and can only send emails
 This project is packaged with [uv](https://docs.astral.sh/uv/).
 
 
-Git clone this repo or download the archive and extract it to your chosen location.
+Git clone this repo or download the archive and extract it to `/opt/`.
+
+It should look like this `/opt/Mail2CheckMK/main.py`.
 
 On Debian make sure you have python3-venv installed.
 `sudo apt install python3.13-venv`
+
+Navigate into the project-root.
+`cd /opt/Mail2CheckMk`
 
 Create a virtual environment.
 `python3 -m venv .venv`
@@ -37,7 +42,7 @@ Use a template or create your own service config file in `./config/services/~You
 
 # Usage
 
-Add the path of `mail2checkmk.sh` to checkmk as a localcheck.
+Move the `mail2checkmk.sh` launch-script to the proper checkmk local check directory `/usr/lib/check_mk_agent/local/`.
 
 # Debugging
 
