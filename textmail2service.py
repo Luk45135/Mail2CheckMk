@@ -231,7 +231,7 @@ def move_mails_without_service(plaintext_email_paths: list[Path]) -> None:
     """This moves all remaining plaintext-emails into the without-service subdirectory,
     but because the only remaining one's don't have services it's called like this."""
 
-    without_service_path: Path = Path("plaintext-emails") / "without-servive"
+    without_service_path: Path = Path("plaintext-emails") / "without-service"
     for file in plaintext_email_paths:
         if file.exists() and "without" not in file.parent.name:
             file.rename(without_service_path / file.name)
