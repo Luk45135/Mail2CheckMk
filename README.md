@@ -40,6 +40,8 @@ Configure your IMAP server and login details in `./config/config.cfg`.
 
 Use a template or create your own service config file in `./config/services/~Your config file~.cfg`.
 
+I recommend https://regex101.com for writing regular expressions.
+
 # Usage
 
 Move the `mail2checkmk.sh` launch-script to the proper checkmk local check directory `/usr/lib/check_mk_agent/local/`.
