@@ -181,7 +181,7 @@ def checkmk_services(service_files: list[Service], emails_processed: int, servic
     service_files.append(Service(True,
                                  True,
                                  0,
-                                 "[Mail2CheckMK] Stats",
+                                 "[Mail2CheckMK] 000Stats",
                                  {"emails_processed":emails_processed, "service_files_created":service_files_created},
                                  f"Mail2CheckMK processed {emails_processed} mails and created {service_files_created} service files this run."
                                  )
