@@ -111,6 +111,8 @@ def create_service_object(service_config: SectionProxy, email_object: Email, sub
 
 
     name: str = service_config.get("name").replace("EMAIL_SUBJECT_REGEX", subject_match.group(1))
+    name = sub(r"\[\]", "", name) # replace [,] with "" for legacy checkmk support
+    
 
     values: dict = {}
     if value_name is not None and value_regex is not None:
