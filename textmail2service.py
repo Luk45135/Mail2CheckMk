@@ -111,7 +111,7 @@ def create_service_object(service_config: SectionProxy, email_object: Email, sub
 
 
     name: str = service_config.get("name").replace("EMAIL_SUBJECT_REGEX", subject_match.group(1))
-    name = sub(r"[\W]", "", name) # replace any non-word character e.g. a-z, A-Z, 0-9 and _ with "" for legacy checkmk support
+    name = sub(r"[^\w-]", "", name) # replace any non-word character e.g. a-z, A-Z, 0-9 and _ with "" for legacy checkmk support
     
 
     values: dict = {}
