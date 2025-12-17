@@ -2,3 +2,4 @@ plaintext-emails/*
 service-files/*
 config/services/*.cfg
 __pycache__/
+config/config.cfg
