@@ -111,7 +111,7 @@ def create_service_object(service_config: SectionProxy, email_object: Email, sub
 
 
     name: str = service_config.get("name").replace("EMAIL_SUBJECT_REGEX", subject_match.group(1))
-    name = sub(r"\[\]", "", name) # replace [,] with "" for legacy checkmk support
+    name = sub(r"[\W]", "", name) # replace any non-word character e.g. a-z, A-Z, 0-9 and _ with "" for legacy checkmk support
     
 
     values: dict = {}
@@ -219,7 +219,7 @@ def save_service_files(service_objects: list[Service]) -> None:
         with open(f"service-files/{filename}.txt", "w") as file:
             file.write(f"Delete Service File: {service_object.delete}\n")
             file.write(f"Send to CheckMK: {service_object.send}\n")
-            file.write(f'{str(service_object.status)} "{service_object.name}"{formatted_dict} {service_object.status_details}')
+            file.write(f'{str(service_object.status)} {service_object.name}{formatted_dict} {service_object.status_details}')
 
 
 def delete_files(files_to_be_deleted: list[Path]) -> None:
