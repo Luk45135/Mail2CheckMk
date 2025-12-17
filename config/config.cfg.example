@@ -1,9 +1,14 @@
+# Remove .example from the filename
+# config.cfg.example -> config.cfg
+
+
 [Mail]
 # IMAP4 Server login Daten, es wird nur IMAP4 unterstützt
 # Siehe: https://support.hostpoint.ch/de/technisches/e-mail/haeufig-gestellte-fragen/e-mail-einstellungen-auf-einen-blick#hp-section1
-host = 
-user = 
-password = 
+host =
+user =
+password =
+
 # 143 = unverschlüsselt oder verschlüsselt mit STARTTLS
 # 993 = verschlüsselt mit SSL
 port = 993
