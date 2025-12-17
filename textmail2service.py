@@ -193,7 +193,7 @@ def checkmk_services(service_files: list[Service], emails_processed: int, servic
         service_files.append(Service(True,
                                      True,
                                      1,
-                                     "Mail2CheckMK-Emails-without-service",
+                                     "Mail2CheckMK-000Emails-without-service",
                                      {"email_without_service_count":email_without_service_count},
                                      f"Mail2CheckMK couldn't find services for {email_without_service_count} email(s)"
                                      )
