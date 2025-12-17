@@ -208,13 +208,17 @@ def save_service_files(service_objects: list[Service]) -> None:
         filename: str = sub(r"[\/\0\n\r\s]", "_", service_object.name)
         unix_time_string = str(time()).replace(".", ",")
         filename += f"_{unix_time_string}"
+
         formatted_dict: str = ""
-        for key, value in service_object.values.items():
-            if formatted_dict == "":
-                formatted_dict += f" {key}={value}"
-            else:
-                formatted_dict += f"|{key}={value}"
-            
+        if len(service_object.values) != 0:
+            for key, value in service_object.values.items():
+                if formatted_dict == "":
+                    formatted_dict += f" {key}={value}"
+                else:
+                    formatted_dict += f"|{key}={value}"
+        else:
+            formatted_dict = " -"
+
 
         with open(f"service-files/{filename}.txt", "w") as file:
             file.write(f"Delete Service File: {service_object.delete}\n")
